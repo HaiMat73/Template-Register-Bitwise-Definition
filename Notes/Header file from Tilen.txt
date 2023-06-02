@@ -1,0 +1,97 @@
+/*
+ * AS6500_config_regs.h
+ *
+ *  Created on: 11.05.2022
+ *      Author: matthias.hainz
+ */
+ 
+#ifndef INC_AS6500_CONFIG_REGS_H_
+#define INC_AS6500_CONFIG_REGS_H_
+ 
+/* Opcode Hex / BIN Description / One Byte */
+#define spiopc_power        0x30    // = 0b00110000 Power on reset and stop measurement
+#define spiopc_init         0x18    // = 0b00011000 Initializes Chip and starts measurement
+#define spiopc_write_config 0x80    // = 0b100XXXXX 0x60 = 0b011XXXXX
+#define spiopc_read_results 0x60    // = 0b011XXXXX Read opcode for result and status register X=8..31
+#define spiopc_read_config  0x40    // = 0b010XXXXX Readout of configuration register X=0..16
+ 
+/* Result registers */
+ 
+/* mandatory bits */
+#define AS6500_CR0_fixed_value 0
+ 
+/* masks, shifts and register definitions */
+ 
+/*  
+BIT 0 = STOP1
+BIT 1 = STOP2
+BIT 2 = don't care right now
+BIT 3 = don't care right now
+BIT 4 = RSTID[0]
+BIT 5 = RSTID[1]
+BIT 6 = RSTID[2]
+BIT 7 = RSTID[3]
+ 
+    0001 = 0x01
+    0010 = 0x02
+    0100 = 0x04
+    1000 = 0x08
+ 
+76543210 = bit position
+00000000 = bit value
+*/
+ 
+#define AS6500_CFG0_PIN_ENA_STOP1_POS       0
+#define AS6500_CFG0_PIN_ENA_STOP1_MASK      (1 << AS6500_CFG0_PIN_ENA_STOP1_POS)            //0x01
+#define AS6500_CFG0_PIN_ENA_STOP1           AS6500_CFG0_PIN_ENA_STOP1_MASK
+ 
+#define AS6500_CFG0_PIN_ENA_STOP2_POS       1
+#define AS6500_CFG0_PIN_ENA_STOP2_MASK      (1 << AS6500_CFG0_PIN_ENA_STOP2_POS)            //0x02
+#define AS6500_CFG0_PIN_ENA_STOP2           AS6500_CFG0_PIN_ENA_STOP2_MASK
+ 
+#define AS6500_CFG0_PIN_ENA_RSTID_POS       4
+#define AS6500_CFG0_PIN_ENA_RSTID_MASK      (0x0F << AS6500_CFG0_PIN_ENA_RSTID_POS)
+#define AS6500_CFG0_PIN_ENA_RSTID           AS6500_CFG0_PIN_ENA_RSTID_MASK
+#define AS6500_CFG0_PIN_ENA_RSTID_0         (0x01 << AS6500_CFG0_PIN_ENA_RSTID_POS)
+#define AS6500_CFG0_PIN_ENA_RSTID_1         (0x02 << AS6500_CFG0_PIN_ENA_RSTID_POS)
+#define AS6500_CFG0_PIN_ENA_RSTID_2         (0x04 << AS6500_CFG0_PIN_ENA_RSTID_POS)
+#define AS6500_CFG0_PIN_ENA_RSTID_3         (0x08 << AS6500_CFG0_PIN_ENA_RSTID_POS)
+ 
+#define AS6500_SPI_DIV_2                    0x00
+#define AS6500_SPI_DIV_4                    (0x01 << AS6500_CFG0_PIN_ENA_RSTID_0)
+#define AS6500_SPI_DIV_8                    (0x02 << AS6500_CFG0_PIN_ENA_RSTID_0)
+#define AS6500_SPI_DIV_16                   (0x03 << AS6500_CFG0_PIN_ENA_RSTID_0)
+#define AS6500_SPI_DIV_32                   (0x04 << AS6500_CFG0_PIN_ENA_RSTID_0)
+#define AS6500_SPI_DIV_64                   (0x05 << AS6500_CFG0_PIN_ENA_RSTID_0)
+ 
+#define AS6500_CFG0_DEFAULT                 (AS6500_CFG0_PIN_ENA_STOP1 | AS6500_CFG0_PIN_ENA_STOP2)
+#define AS6500_CFG1_DEFAULT                 (AS6500_CFG0_PIN_ENA_STOP1 | AS6500_CFG0_PIN_ENA_STOP2)
+#define AS6500_CFG2_DEFAULT                 (AS6500_CFG0_PIN_ENA_STOP1 | AS6500_CFG0_PIN_ENA_STOP2)
+#define AS6500_CFG3_DEFAULT                 (AS6500_CFG0_PIN_ENA_STOP1 | AS6500_CFG0_PIN_ENA_STOP2)
+ 
+uint8_t value = AS6500_CFG0_DEFAULT | AS6500_SPI_DIV_32;
+ 
+HAL_SPI_Transmit(&hspi,. ... &value, 1, 100);
+
+
+
+#define AS6500_CFG0                         (((AS6500_PIN_ENA_STOP1 & AS6500_PIN_ENA_STOP1_MASK) << AS6500_PIN_ENA_STOP1_LSHIFT) | \
+                                             ((AS6500_PIN_ENA_STOP2 & AS6500_PIN_ENA_STOP2_MASK) << AS6500_PIN_ENA_STOP2_LSHIFT) | \
+                                             ((AS6500_PIN_ENA_STOP3 & AS6500_PIN_ENA_STOP3_MASK) << AS6500_PIN_ENA_STOP3_LSHIFT) | \
+                                             ((AS6500_PIN_ENA_STOP4 & AS6500_PIN_ENA_STOP4_MASK) << AS6500_PIN_ENA_STOP4_LSHIFT) | \
+                                             ((AS6500_PIN_ENA_REFCLK & AS6500_PIN_ENA_REFCLK_MASK) << AS6500_PIN_ENA_REFCLK_LSHIFT) | \
+                                             ((AS6500_CR0_fixed_value) << 5) | \
+                                             ((AS6500_PIN_ENA_DISABLE & AS6500_PIN_ENA_DISABLE_MASK) << AS6500_PIN_ENA_DISABLE_LSHIFT) | \
+                                             ((AS6500_PIN_ENA_RSTIDX & AS6500_PIN_ENA_RSTIDX_MASK) << AS6500_PIN_ENA_RSTIDX_LSHIFT) )
+ 
+#endif /* INC_AS6500_CONFIG_REGS_H_ */
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+ 
+ 
